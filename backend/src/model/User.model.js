@@ -1,6 +1,5 @@
-import mongoose from "mongoose";
+import mongoose from "../config/db.js";
 import bcrypt from "bcrypt";
-import { unique } from "next/dist/build/utils";
 
 const userSchema = new Schema(
   {
