@@ -1,7 +1,7 @@
 import mongoose from "../config/db.js";
 import bcrypt from "bcrypt";
 
-const userSchema = new Schema(
+const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -59,7 +59,7 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.pre("save", (next) => {
+userSchema.pre("save", function(next) {
   const user = this;
   if (!user.isModified("password")) return next();
   bcrypt.hash(user.password, 12, (err, hash) => {
