@@ -122,6 +122,17 @@ const handleOAuthLogin = async (req, res) => {
     }
   );
 
+  const refreshToken = jwt.sign(
+    {
+      userInfo: {
+        username: username,
+      },
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: "3d",
+    }
+  );
   user.refreshToken = refreshToken;
   await user.save();
   res.cookie("jwt", refreshToken, {
