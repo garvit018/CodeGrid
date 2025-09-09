@@ -6,7 +6,6 @@ import User from "../model/User.model.js";
 import transporter from "../config/nodeMailer.js";
 import bcrypt from "bcrypt";
 import AccountRecover from "../model/AccountRecover.model.js";
-import { use } from "react";
 
 const handleLogin = async (req, res) => {
   const { username, password } = req.body;
