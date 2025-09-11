@@ -1,4 +1,4 @@
-import allowedUrl from "./config/allowedUrl.js";
+import allowedUrl from "../config/allowedUrl.js";
 
 const credential = (req, res, next) => {
   const origin = req.headers.origin;
