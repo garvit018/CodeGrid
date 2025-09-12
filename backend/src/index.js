@@ -35,4 +35,21 @@ app.use(cookieParser());
 
 app.use("/", express.static(path.join(__dirname, "/public")));
 
+import router from "./routes/root.route.js";
+app.use("/", router);
+
+import visitorCountRoutes from "./routes/visitorCount.route.js";
+import registerRoutes from "./routes/register.route.js";
+import authRoutes from "./routes/auth.route.js";
+import userDataRoutes from "./routes/getUserData.route.js";
+import refreshRoutes from "./routes/refresh.route.js";
+import logoutRoutes from "./routes/logout.route.js";
+
+app.use("/visitor-count", visitorCountRoutes);
+app.use("/register", registerRoutes);
+app.use("/auth", authRoutes);
+app.use("/user", userDataRoutes);
+app.use("/refresh", refreshRoutes);
+app.use("/logout", logoutRoutes);
+
 //public routes

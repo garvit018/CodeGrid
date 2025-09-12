@@ -1,4 +1,4 @@
-import mongoose from "../config/MongoConnect.js";
+import mongoose from "../config/db.js";
 
 const accountVerificationSchema = new mongoose.Schema({
   authCode: {

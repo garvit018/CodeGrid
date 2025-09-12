@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const getUserData = (req, res, next) => {
+const getUserDataa = (req, res, next) => {
   const token = req?.cookies?.jwt_access;
   // console.log(token);
   if (!token) {
@@ -25,4 +25,4 @@ const getUserData = (req, res, next) => {
   });
 };
 
-export default getUserData;
+export default getUserDataa;

@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import Visitor from "../models/Visitor.js";
+import { Visitor } from "../model/Visitor.model.js";
 
 router.route("/").get(async (req, res) => {
   const user = await Visitor.find({});
