@@ -32,15 +32,8 @@ const infor = (info) => {
   const image = {
     CodeForces: "codeforces",
     LeetCode: "leet_code",
-    "CodeForces::Gym": "codeforces_gym",
-    TopCoder: "top_coder",
     AtCoder: "at_coder",
-    // "CS Academy": "cs_academy",
     CodeChef: "code_chef",
-    HackerRank: "hacker_rank", 
-    HackerEarth: "hacker_earth",
-    // "Kick Start": "kick_start",
-    // Toph: "toph",
   };
 
   const infoParse = {
@@ -61,3 +54,53 @@ const infor = (info) => {
   };
   return infoParse;
 };
+
+router.route("/").get((req, res, next) => {
+  // const url = `https://kontests.net/api/v1/all`;
+  // const options = {
+  //     method: 'GET'
+  // };
+  // fetch(url, options)
+  //     .then(response => response.json())
+  //     .then(data => {
+  //         // res.send(data);
+  //         res.send(data.map((info) => infoParse(info)));
+  //     }
+  //     )
+  //     .catch(error => {
+  //         console.log(error);
+  //         res.status(500).send(error);
+  //     }
+  //     )
+  res.status(200);
+});
+
+router.route("/:site").get((req, res, next) => {
+  //   const { site } = req.params;
+  //   const url = `https://kontests.net/api/v1/${site}`;
+  //   const options = {
+  //     method: "GET",
+  //   };
+  //   fetch(url, options)
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       res.send(
+  //         data
+  //           .map((info) => infoParse(info))
+  //           .map((info) => {
+  //             info.site_logo =
+  //               process.env.NODE_ENV === "development"
+  //                 ? `${process.env.BACKEND_URL}/images/${site}.png`
+  //                 : `http://localhost:${process.env.PORT}/images/${site}.png`;
+  //             return info;
+  //           })
+  //       );
+  // })
+  // .catch((error) => {
+  //   console.log(error);
+  //   res.status(500).send(error);
+  // });
+  res.status(200);
+});
+
+export default router;
