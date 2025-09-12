@@ -6,6 +6,76 @@ import User from "../model/User.model.js";
 import transporter from "../config/nodeMailer.js";
 import bcrypt from "bcrypt";
 import AccountRecover from "../model/AccountRecover.model.js";
+import { User } from "../model/User.model.js";
+
+const handleNewUser = async (req, res) => {
+  const { username, password, email, fullName } = req.body;
+  if (!username || !password || !email || !fullName) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+  const duplicateUsername = await User.findOne({ username: username });
+  if (duplicateUsername) {
+    return res
+      .status(409)
+      .json({ message: `Username ${username} already exists`, success: false });
+  }
+  const duplicateEmail = await User.findOne({ email: email });
+  if (duplicateEmail) {
+    return res
+      .status(409)
+      .json({ message: `Email ${email} already exists`, success: false });
+  }
+  try {
+    const newUser = new User({
+      username: username,
+      password: password,
+      email: email,
+      fullName: fullName,
+      isAccountVerified: false,
+      roles: { User: 2001 },
+      picture:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToK4qEfbnd-RN82wdL2awn_PMviy_pelocqQ",
+      isOauth: false,
+    });
+    const saveUser = await newUser.save();
+    const accountVerification = new AccountVerification({
+      authcode: await bcrypt.hash(email, 12),
+      email: email,
+    });
+    await accountVerification.save();
+    transporter.sendMail(
+      {
+        from: "garvitgoyal83@gmail.com",
+        to: email,
+        subject: "Account Verification",
+        html: `<h1>Click on the link below to verify your account</h1>
+      <a href="${process.env.FRONTEND_URL}/auth/success?token=${accountVerification.authCode}">Verify Account</a>
+      <br/>
+      <p>Or copy and paste the following link in your browser</p>
+      <p>${process.env.FRONTEND_URL}/auth/success?token=${accountVerification.authCode}</p>
+
+      <p>Thank you for registering with us.</p>
+      <i>Thanks & Regards,</i>
+      <p>CodeGrid</p>
+      `,
+      },
+      (err, info) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(info);
+        }
+      }
+    );
+    res.status(201).json({
+      message: `New Username ${username} created successfully`,
+      success: true,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
 
 const handleLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -292,11 +362,74 @@ const handleAccountRecovery = async (req, res) => {
   res.status(200).json({ message: "Password reset successfully" });
 };
 
+const handleLogout = async (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) return res.sendStatus(204);
+  const refreshToken = cookies.jwt;
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      // secure: true,
+      samesite: "None",
+    });
+    res.clearCookie("jwt_access", {
+      httpOnly: true,
+      // secure: true,
+      samesite: "None",
+    });
+    return res.sendStatus(204);
+  }
+  user.refreshToken = "";
+  await user.save();
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    // secure: true,
+    samesite: "None",
+  });
+  res.clearCookie("jwt_access", {
+    httpOnly: true,
+    // secure: true,
+    samesite: "None",
+  });
+  res.sendStatus(204);
+};
+
+const handleRefreshToken = async (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) {
+    return res.sendStatus(401);
+  }
+  const refreshToken = cookies.jwt;
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    return res.sendStatus(403);
+  }
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    if (err || user.username !== decoded.username) return res.sendStatus(403);
+    const roles = Object.values(user.roles);
+    const accessToken = jwt.sign(
+      {
+        userInfo: {
+          username: decoded.username,
+          roles: roles,
+        },
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "4h" }
+    );
+    res.json({ accessToken });
+  });
+};
+
 export {
+  handleNewUser,
   handleLogin,
   handleOAuthLogin,
   handleAccountVerify,
   handleForgotPassword,
   handleAccountRecoveryTokenVerify,
   handleAccountRecovery,
+  handleLogout,
+  handleRefreshToken,
 };
