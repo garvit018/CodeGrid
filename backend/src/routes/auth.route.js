@@ -7,13 +7,13 @@ import {
   handleAccountRecoveryTokenVerify,
   handleAccountRecovery,
 } from "../controllers/authController.js";
-const Router = express.Router();
+const router = express.Router();
 
-Router.post("/", handleLogin);
-Router.post("/o-auth", handleOAuthLogin);
-Router.get("/success", handleAccountVerify);
-Router.post("/forgot-password", handleForgotPassword);
-Router.get("/recover", handleAccountRecoveryTokenVerify);
-Router.post("/recover", handleAccountRecovery);
+router.post("/", handleLogin);
+router.post("/o-auth", handleOAuthLogin);
+router.get("/success", handleAccountVerify);
+router.post("/forgot-password", handleForgotPassword);
+router.get("/recover", handleAccountRecoveryTokenVerify);
+router.post("/recover", handleAccountRecovery);
 
-export default Router;
+export default router;
