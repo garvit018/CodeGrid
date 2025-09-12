@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 import AccountVerification from "../model/AccountVerification.model.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -422,6 +422,29 @@ const handleRefreshToken = async (req, res) => {
   });
 };
 
+const getUserData = async (req, res) => {
+  const token = req?.cookies?.jwt_access;
+  if (!token) {
+    return res.status(401).json({ message: "No token found" });
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403);
+    }
+    res.status(200).json({
+      user: decoded.userInfo,
+      roles: decoded.userInfo.roles,
+      accessToken: token,
+      fullName: decoded.userInfo.fullName,
+      email: decoded.userInfo.email,
+      // id: decoded.userInfo.id,
+      picture: decoded.userInfo.picture,
+      isAccountVerified: decoded.userInfo.isAccountVerified,
+      problemSolved: decoded.userInfo.problemSolved,
+    });
+  });
+};
+
 export {
   handleNewUser,
   handleLogin,
@@ -432,4 +455,5 @@ export {
   handleAccountRecovery,
   handleLogout,
   handleRefreshToken,
+  getUserData,
 };
