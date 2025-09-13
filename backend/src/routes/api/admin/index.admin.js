@@ -1,7 +1,7 @@
-import Feedback from "../../../model/Feedback.model.js";
-import Problems from "../../../model/Problems.model.js";
-import User from "../../../model/User.model.js";
-import Visitor from "../../../model/Visitor.model.js";
+import {Feedback} from "../../../model/Feedback.model.js";
+import {Problems} from "../../../model/Problems.model.js";
+import {User} from "../../../model/User.model.js";
+import {Visitor} from "../../../model/Visitor.model.js";
 import express from "express";
 const router = express.Router();
 
@@ -138,4 +138,4 @@ router.route("/problem/:_id").patch(async (req, res, next) => {
   }
 });
 
-module.exports = router;
+export default router;
