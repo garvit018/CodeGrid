@@ -70,3 +70,10 @@ app.use("/api/v1/room", roomRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/problem", problemRoutes);
 
+import settingsRoutes from "./routes/api/settings.route.js";
+import adminRoutes from "./routes/api/admin/index.admin.js";
+
+app.use(verifyJWT);
+app.use("/api/v1/settings", settingsRoutes);
+app.use(verifyRoles(5150));
+app.use("/api/v1/admin", adminRoutes);
