@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
-import User from "../../model/User.model.js";
+import {User} from "../../model/User.model.js";
 import jwt from "jsonwebtoken";
-import Problems from "../../model/Problems.model.js";
+import {Problems} from "../../model/Problems.model.js";
 dotenv.config();
 
 const router = express.Router();

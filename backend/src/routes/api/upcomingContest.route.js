@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import { ApiError } from "../../utils/ApiError.js";
 dotenv.config();
 
 const router = express.Router();
@@ -55,7 +56,7 @@ router.route("/").get(async (req, res) => {
   try {
     const response = await fetch(url);
     if (!response.ok)
-      throw new Error("Failed to fetch contests from Clist API");
+      throw new ApiError("Failed to fetch contests from Clist API");
     const data = await response.json();
 
     if (!data.objects) {

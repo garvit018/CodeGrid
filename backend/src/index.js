@@ -1,9 +1,10 @@
 import express from "express";
 import http from "http";
 const app = express();
+import createSocketServer from "./config/socketServer.js";
+
 const server = http.createServer(app);
-import socketUtil from "./utils/sockets.util.js";
-const io = socketUtil(server);
+const io = createSocketServer(server);
 import "./config/db.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -53,3 +54,19 @@ app.use("/refresh", refreshRoutes);
 app.use("/logout", logoutRoutes);
 
 //public routes
+import feedbackRoutes from "./routes/api/feedback.route.js";
+import runRoutes from "./routes/api/run.route.js";
+import contestWatcherRoutes from "./routes/api/upcomingContest.route.js";
+import snippetRoutes from "./routes/api/snippet.route.js";
+import roomRoutes from "./routes/api/roomHandler.route.js";
+import userRoutes from "./routes/api/user.route.js";
+import problemRoutes from "./routes/api/problems.route.js";
+
+app.use("/api/v1/feedback", feedbackRoutes);
+app.use("/api/v1/run", runRoutes);
+app.use("/api/v1/contest-watcher", contestWatcherRoutes);
+app.use("/api/v1/snippet", snippetRoutes);
+app.use("/api/v1/room", roomRoutes);
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/problem", problemRoutes);
+
