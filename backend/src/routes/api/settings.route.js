@@ -1,79 +1,64 @@
 import express from "express";
-import {User} from "../../model/User.model.js";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
+import { User } from "../../model/User.model.js";
 
 const router = express.Router();
 
-router.route("/account").put((req, res, next) => {
-  const token = req?.cookies?.jwt_access;
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Not allowed to perform this action" });
-  }
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid Token" });
-    }
-    const username = decoded.UserInfo.username;
-    const user = await User.findOne({
-      username,
-    });
+// Account update
+router.route("/account").put(async (req, res) => {
+  try {
+    const username = req.user.username;
+    const user = await User.findOne({ username });
+
     if (!user) {
-      return res.status(403).json({
-        message: "User does not exists",
-      });
+      return res.status(404).json({ message: "User does not exist" });
     }
-    user.username = req.body.username;
-    user.fullName = req.body.fullName;
+
+    user.username = req.body.username || user.username;
+    user.fullName = req.body.fullName || user.fullName;
     await user.save();
-    res.status(200).json({
-      message: "Account Updated Successfully",
-    });
-  });
+
+    res.status(200).json({ message: "Account Updated Successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
-router.route("/security").put(async (req, res, next) => {
-  const { currentPassword, newPassword, confirmPassword } = req.body;
-  if (currentPassword === newPassword) {
-    return res.status(403).json({
-      message: "New and current password cannot be same",
-    });
-  }
+// Security (password update)
+router.route("/security").put(async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
 
-  const token = req?.cookies?.jwt_access;
-  if (!token)
-    return res.status(401).json({
-      message: "You're not allowed to perform this action",
-    });
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
-    if (err)
-      return res.status(403).json({
-        message: "Invalid Token",
-      });
-    const username = decoded.UserInfo.username;
-    const user = await User.findOne({
-      username,
-    });
+    if (newPassword === currentPassword) {
+      return res
+        .status(400)
+        .json({ message: "New and current password cannot be same" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    const username = req.user.username;
+    const user = await User.findOne({ username });
+
     if (!user) {
-      return res.status(403).json({
-        message: "User does not exists",
-      });
+      return res.status(404).json({ message: "User does not exist" });
     }
-    const resp = await user.comparePassword(currentPassword);
-    if (!resp) {
-      return res.status(401).json({
-        message: "Incorrect current Password",
-      });
+
+    const validPassword = await user.comparePassword(currentPassword);
+    if (!validPassword) {
+      return res.status(401).json({ message: "Incorrect current password" });
     }
+
     user.password = newPassword;
     await user.save();
-    res.status(200).json({
-      message: "Password Updated Successfully",
-    });
-  });
+
+    res.status(200).json({ message: "Password Updated Successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 export default router;

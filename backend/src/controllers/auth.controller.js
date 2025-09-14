@@ -1,11 +1,11 @@
 import jwt, { decode } from "jsonwebtoken";
-import {AccountVerification} from "../model/AccountVerification.model.js";
+import { AccountVerification } from "../model/AccountVerification.model.js";
 import dotenv from "dotenv";
 dotenv.config();
 // import User from "../model/User.model.js";
 import transporter from "../config/nodeMailer.js";
 import bcrypt from "bcrypt";
-import {AccountRecover} from "../model/AccountRecover.model.js";
+import { AccountRecover } from "../model/AccountRecover.model.js";
 import { User } from "../model/User.model.js";
 
 const handleNewUser = async (req, res) => {
@@ -39,9 +39,10 @@ const handleNewUser = async (req, res) => {
     });
     const saveUser = await newUser.save();
     const accountVerification = new AccountVerification({
-      authcode: await bcrypt.hash(email, 12),
+      authCode: await bcrypt.hash(email, 12),
       email: email,
     });
+
     await accountVerification.save();
     transporter.sendMail(
       {
