@@ -1,10 +1,11 @@
 import express from "express";
 import { User } from "../../model/User.model.js";
+import verifyJWT from "../../middleware/verifyJWT.js";
 
 const router = express.Router();
 
 // Account update
-router.route("/account").put(async (req, res) => {
+router.route("/account").put(verifyJWT, async (req, res) => {
   try {
     const username = req.user.username;
     const user = await User.findOne({ username });
@@ -25,7 +26,7 @@ router.route("/account").put(async (req, res) => {
 });
 
 // Security (password update)
-router.route("/security").put(async (req, res) => {
+router.route("/security").put(verifyJWT, async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 

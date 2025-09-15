@@ -7,8 +7,9 @@ import transporter from "../config/nodeMailer.js";
 import bcrypt from "bcrypt";
 import { AccountRecover } from "../model/AccountRecover.model.js";
 import { User } from "../model/User.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
-const handleNewUser = async (req, res) => {
+const handleNewUser = asyncHandler(async (req, res) => {
   const { username, password, email, fullName } = req.body;
   if (!username || !password || !email || !fullName) {
     return res.status(400).json({ message: "Missing required fields" });
@@ -76,9 +77,9 @@ const handleNewUser = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: error.message });
   }
-};
+});
 
-const handleLogin = async (req, res) => {
+const handleLogin = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res
@@ -148,9 +149,9 @@ const handleLogin = async (req, res) => {
     problemSolved: user.problemSolved,
     isAccountVerified: user.isAccountVerified,
   });
-};
+});
 
-const handleOAuthLogin = async (req, res) => {
+const handleOAuthLogin = asyncHandler(async (req, res) => {
   const { fullName, email, picture } = req.body;
   if (!email || !fullName || !picture) {
     return res
@@ -229,9 +230,9 @@ const handleOAuthLogin = async (req, res) => {
     picture: user.picture,
     isAccountVerified: user.isAccountVerified,
   });
-};
+});
 
-const handleAccountVerify = async (req, res) => {
+const handleAccountVerify = asyncHandler(async (req, res) => {
   const { token } = req.query;
   if (!token) {
     return res.status(400).json({ login: false, message: "Missing token" });
@@ -273,9 +274,9 @@ const handleAccountVerify = async (req, res) => {
     }
   );
   res.status(200).json({ message: "Account verified successfully" });
-};
+});
 
-const handleForgotPassword = async (req, res) => {
+const handleForgotPassword = asyncHandler(async (req, res) => {
   const { username } = req.query;
   if (!username) {
     return res.status(400).json({ message: "Missing username" });
@@ -319,9 +320,9 @@ const handleForgotPassword = async (req, res) => {
   res
     .status(200)
     .json({ success: true, message: "Password recovery email sent" });
-};
+});
 
-const handleAccountRecoveryTokenVerify = async (req, res) => {
+const handleAccountRecoveryTokenVerify = asyncHandler(async (req, res) => {
   const { token } = req.query;
   if (!token) {
     return res.status(400).json({ login: false, message: "Missing token" });
@@ -331,9 +332,9 @@ const handleAccountRecoveryTokenVerify = async (req, res) => {
     return res.status(403).json({ message: "Invalid or expired token" });
   }
   return res.status(200).json({ message: "Valid token" });
-};
+});
 
-const handleAccountRecovery = async (req, res) => {
+const handleAccountRecovery = asyncHandler(async (req, res) => {
   const { token } = req.query;
   if (!token) {
     return res.status(400).json({ login: false, message: "Missing token" });
@@ -361,9 +362,9 @@ const handleAccountRecovery = async (req, res) => {
   await user.save();
   await pendingAccount.deleteOne();
   res.status(200).json({ message: "Password reset successfully" });
-};
+});
 
-const handleLogout = async (req, res) => {
+const handleLogout = asyncHandler(async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.jwt) return res.sendStatus(204);
   const refreshToken = cookies.jwt;
@@ -394,9 +395,9 @@ const handleLogout = async (req, res) => {
     samesite: "None",
   });
   res.sendStatus(204);
-};
+});
 
-const handleRefreshToken = async (req, res) => {
+const handleRefreshToken = asyncHandler(async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.jwt) {
     return res.sendStatus(401);
@@ -407,12 +408,14 @@ const handleRefreshToken = async (req, res) => {
     return res.sendStatus(403);
   }
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    if (err || user.username !== decoded.username) return res.sendStatus(403);
+    if (err || user.username !== decoded.userInfo.username) {
+      return res.sendStatus(403);
+    }
     const roles = Object.values(user.roles);
     const accessToken = jwt.sign(
       {
         userInfo: {
-          username: decoded.username,
+          username: decoded.userInfo.username,
           roles: roles,
         },
       },
@@ -421,9 +424,9 @@ const handleRefreshToken = async (req, res) => {
     );
     res.json({ accessToken });
   });
-};
+});
 
-const getUserData = async (req, res) => {
+const getUserData = asyncHandler(async (req, res) => {
   const token = req?.cookies?.jwt_access;
   if (!token) {
     return res.status(401).json({ message: "No token found" });
@@ -444,7 +447,7 @@ const getUserData = async (req, res) => {
       problemSolved: decoded.userInfo.problemSolved,
     });
   });
-};
+});
 
 export {
   handleNewUser,

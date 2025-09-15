@@ -1,4 +1,3 @@
-// backend/src/utils/socket.util.js
 const UserSocketMap = {};
 
 export function join_User(socketId, UserName) {
